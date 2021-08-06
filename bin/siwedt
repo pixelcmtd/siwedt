@@ -10,10 +10,10 @@ const rc = fs.readFileSync('.siwedtrc');
 
 babel.loadOptions({
     'presets': [
-        ['@babel/preset-env', {
+        [require('@babel/preset-env'), {
             'targets': rc['browserlist']
         }],
-        'minify'
+        require('babel-preset-minify')
     ]
 });
 
