@@ -1,0 +1,38 @@
+#!/usr/bin/env node
+
+const fs = require('fs');
+const css = require('csso').minify;
+const babel = require('@babel/core');
+const html = require('html-minifier').minify;
+const walk = require('ignore-walk');
+
+const rc = fs.readFileSync('.siwedtrc');
+
+babel.loadOptions({
+    'presets': [
+        ['@babel/preset-env', {
+            'targets': rc['browserlist']
+        }],
+        'minify'
+    ]
+});
+
+if(fs.existsSync('dist/')) fs.rmSync('dist/', {recursive: true, force: true});
+
+// .siwedtignore shouldn't exist, blame @isaacs: npm/ignore-walk#12
+const files = walk.sync({ignoreFiles: ['.gitignore', '.siwedtignore']}).map(f => './' + f);
+for(const f of files) {
+    const o = 'dist/' + f;
+    const od = o.split('/').slice(0, -1).reduce((x, y) => x + '/' + y);
+    if(!fs.existsSync(od)) fs.mkdirSync(od, {recursive: true});
+    console.log(f);
+    if (f.endsWith('.js')) {
+        fs.writeFileSync(o, babel.transformFileSync(f).code);
+    } else if (f.endsWith('.css')) {
+        fs.writeFileSync(o, css(fs.readFileSync(f, {encoding: 'utf-8'})).css);
+    } else if (f.endsWith('.html') || f.endsWith('.htm')) {
+        fs.writeFileSync(o, html(fs.readFileSync(f, {encoding: 'utf-8'})));
+    } else {
+        fs.copyFileSync(f, o);
+    }
+}
