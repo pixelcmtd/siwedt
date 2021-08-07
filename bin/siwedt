@@ -5,11 +5,16 @@ const css = require('csso').minify;
 const babel = require('@babel/core');
 const html = require('html-minifier').minify;
 const walk = require('ignore-walk');
+const minimist = require('minimist');
 
-const rc = fs.readFileSync('.siwedtrc');
+const dirWithSlash = d => d.endsWith('/') ? d : d + '/';
+
+const args = minimist(process.argv.slice(2));
+
+const indir = dirWithSlash(args['_'][0] ?? '.');
+const rc = args['inline-config'] ?? fs.readFileSync(args['c'] ?? args['config'] ?? indir + '.siwedtrc');
 const browserlist = rc['browserlist'];
-const rawod = rc['outdir'] ?? 'dist';
-const outdir = rawod.endsWith('/') ? rawod : rawod + '/';
+const outdir = dirWithSlash(rc['outdir'] ?? 'dist');
 
 babel.loadOptions({
     'presets': [
@@ -21,7 +26,7 @@ babel.loadOptions({
 if(fs.existsSync(outdir)) fs.rmSync(outdir, {recursive: true, force: true});
 
 // .siwedtignore shouldn't exist, blame @isaacs: npm/ignore-walk#12
-const files = walk.sync({ignoreFiles: ['.gitignore', '.siwedtignore']}).map(f => './' + f);
+const files = walk.sync({path: indir, ignoreFiles: ['.gitignore', '.siwedtignore']});
 for(const f of files) {
     const o = outdir + f;
     const od = o.split('/').slice(0, -1).reduce((x, y) => x + '/' + y);
