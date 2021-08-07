@@ -7,22 +7,23 @@ const html = require('html-minifier').minify;
 const walk = require('ignore-walk');
 
 const rc = fs.readFileSync('.siwedtrc');
+const browserlist = rc['browserlist'];
+const rawod = rc['outdir'] ?? 'dist';
+const outdir = rawod.endsWith('/') ? rawod : '/' + rawod;
 
 babel.loadOptions({
     'presets': [
-        [require('@babel/preset-env'), {
-            'targets': rc['browserlist']
-        }],
-        require('babel-preset-minify')
-    ]
+        [require('@babel/preset-env'), {'targets': browserlist}],
+        [require('babel-preset-minify')],
+    ],
 });
 
-if(fs.existsSync('dist/')) fs.rmSync('dist/', {recursive: true, force: true});
+if(fs.existsSync(outdir)) fs.rmSync(outdir, {recursive: true, force: true});
 
 // .siwedtignore shouldn't exist, blame @isaacs: npm/ignore-walk#12
 const files = walk.sync({ignoreFiles: ['.gitignore', '.siwedtignore']}).map(f => './' + f);
 for(const f of files) {
-    const o = 'dist/' + f;
+    const o = outdir + f;
     const od = o.split('/').slice(0, -1).reduce((x, y) => x + '/' + y);
     if(!fs.existsSync(od)) fs.mkdirSync(od, {recursive: true});
     console.log(f);
