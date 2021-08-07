@@ -11,8 +11,21 @@ const dirWithSlash = d => d.endsWith('/') ? d : d + '/';
 
 const args = minimist(process.argv.slice(2));
 
+if(args['h'] || args['H'] || args['help']) {
+    console.log(`usage: siwedt [options] [input-dir]
+
+options:
+    -c[file], -c [file], --config [file], --config=[file]
+        Specify the config file, defaults to input-dir/.siwedtrc
+    -C[config], -C [config], --inline-config [config], --inline-config=[config]
+        Specify the configuration (overrides the config file)
+    -h, -H, --help
+        Display this help message`);
+    return;
+}
+
 const indir = dirWithSlash(args['_'][0] ?? '.');
-const rc = args['inline-config'] ?? fs.readFileSync(args['c'] ?? args['config'] ?? indir + '.siwedtrc');
+const rc = args['C'] ?? args['inline-config'] ?? fs.readFileSync(args['c'] ?? args['config'] ?? indir + '.siwedtrc');
 const browserlist = rc['browserlist'];
 const outdir = dirWithSlash(rc['outdir'] ?? 'dist');
 
