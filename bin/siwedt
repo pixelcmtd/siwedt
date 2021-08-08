@@ -20,10 +20,10 @@ options:
         Specify the config file, defaults to input-dir/.siwedtrc
     -C[config], -C [config], --inline-config [config], --inline-config=[config]
         Specify the configuration (overrides the config file)
+    -V, --verbose
+        Print all processed files
     -v, --version
         Display version information
-    -V, --verbose
-        Print processed all files
     -h, -H, --help
         Display this help message`);
     return;
