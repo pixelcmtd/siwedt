@@ -6,6 +6,7 @@ const babel = require('@babel/core');
 const html = require('html-minifier').minify;
 const walk = require('ignore-walk');
 const minimist = require('minimist');
+const package = require('./package.json');
 
 const dirWithSlash = d => d.endsWith('/') ? d : d + '/';
 
@@ -19,9 +20,17 @@ options:
         Specify the config file, defaults to input-dir/.siwedtrc
     -C[config], -C [config], --inline-config [config], --inline-config=[config]
         Specify the configuration (overrides the config file)
+    -v, --version
+        Display version information
+    -V, --verbose
+        Print processed all files
     -h, -H, --help
         Display this help message`);
     return;
+}
+
+if(args['v'] || args['version']) {
+    console.log(package.name + ' ' + package.version);
 }
 
 const indir = dirWithSlash(args['_'][0] ?? '.');
@@ -44,7 +53,7 @@ for(const f of files) {
     const o = outdir + f;
     const od = o.split('/').slice(0, -1).reduce((x, y) => x + '/' + y);
     if(!fs.existsSync(od)) fs.mkdirSync(od, {recursive: true});
-    console.log(f);
+    if(args['V'] || args['verbose']) console.log(f);
     if (f.endsWith('.js')) {
         fs.writeFileSync(o, babel.transformFileSync(f).code);
     } else if (f.endsWith('.css')) {
