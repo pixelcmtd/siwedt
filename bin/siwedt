@@ -31,6 +31,7 @@ options:
 
 if(args['v'] || args['version']) {
     console.log(package.name + ' ' + package.version);
+    return;
 }
 
 const indir = dirWithSlash(args['_'][0] ?? '.');
