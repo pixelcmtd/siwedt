@@ -6,7 +6,7 @@ const babel = require('@babel/core');
 const html = require('html-minifier').minify;
 const walk = require('ignore-walk');
 const minimist = require('minimist');
-const package = require('./package.json');
+const package = require('../package.json');
 
 const dirWithSlash = d => d.endsWith('/') ? d : d + '/';
 
