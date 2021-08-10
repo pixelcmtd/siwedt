@@ -64,7 +64,7 @@ for(const f of files) {
         fs.writeFileSync(o, css(fs.readFileSync(f, {encoding: 'utf-8'})).css);
         logFile(f, 'csso');
     } else if (f.endsWith('.html') || f.endsWith('.htm')) {
-        fs.writeFileSync(o, html(fs.readFileSync(f, {encoding: 'utf-8'})));
+        fs.writeFileSync(o, html(fs.readFileSync(f, {encoding: 'utf-8'}), {collapseBooleanAttributes: true, collapseInlineTagWhitespace: true, collapseWhitespace: true, decodeEntities: true, minifyCSS:true,minifyJS:true,minifyURLs:true, removeAttributeQuotes: true, removeComments: true, removeEmptyAttributes: true, removeOptionalTags: true, removeRedundantAttributes: true, removeScriptTypeAttributes: true, removeStyleLinkTypeAttributes: true, useShortDoctype: true}));
         logFile(f, 'html-minifier');
     } else {
         fs.copyFileSync(f, o);
