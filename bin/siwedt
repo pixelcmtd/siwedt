@@ -6,19 +6,20 @@ const babel = require('@babel/core');
 const html = require('html-minifier').minify;
 const walk = require('ignore-walk');
 const minimist = require('minimist');
-const package = require('../package.json');
+const { name, version } = require('../package.json');
 
-const dirWithSlash = d => d.endsWith('/') ? d : d + '/';
+const dirWithSlash = d => !d || d.endsWith('/') ? d : d + '/';
+const readFileSafeSync = f => fs.existsSync(f) ? fs.readFileSync(f) : console.log(`file ${f} not found`);
 
 const args = minimist(process.argv.slice(2));
 
-if(args['h'] || args['H'] || args['help']) {
+if (args['h'] || args['H'] || args['help']) {
     console.log(`usage: siwedt [options] [input-dir]
 
 options:
-    -c[file], -c [file], --config [file], --config=[file]
-        Specify the config file, defaults to input-dir/.siwedtrc
-    -C[config], -C [config], --inline-config [config], --inline-config=[config]
+    -c[file], --config=[file]
+        Specify the config file, defaults to [input-dir]/.siwedtrc
+    -C[config], --inline-config=[config]
         Specify the configuration (overrides the config file)
     -V, --verbose
         Print all processed files
@@ -26,16 +27,18 @@ options:
         Display version information
     -h, -H, --help
         Display this help message`);
-    return;
+    process.exit(0);
 }
 
-if(args['v'] || args['version']) {
-    console.log(package.name + ' ' + package.version);
-    return;
+if (args['v'] || args['version']) {
+    console.log(name + ' ' + version);
+    process.exit(0);
 }
 
-const indir = dirWithSlash(args['_'][0] ?? '.');
-const rc = args['C'] ?? args['inline-config'] ?? fs.readFileSync(args['c'] ?? args['config'] ?? indir + '.siwedtrc');
+const indir = dirWithSlash(args['_'][0]) ?? '';
+const rc = args['C'] ?? args['inline-config']
+    ?? readFileSafeSync(args['c'] ?? args['config'] ?? indir + '.siwedtrc')
+    ?? { browserlist: "" };
 const browserlist = rc['browserlist'];
 const outdir = dirWithSlash(rc['outdir'] ?? 'dist');
 
@@ -52,11 +55,11 @@ const logFile = (f, t) => args['V'] || args['verbose'] ?
     console.log(t ? f + ': ' + t : f) : undefined;
 
 // .siwedtignore shouldn't exist, blame @isaacs: npm/ignore-walk#12
-const files = walk.sync({path: indir, ignoreFiles: ['.gitignore', '.siwedtignore']});
-for(const f of files) {
+const files = walk.sync({ path: indir, ignoreFiles: ['.gitignore', '.siwedtignore'] });
+for (const f of files) {
     const o = outdir + f;
     const od = o.split('/').slice(0, -1).reduce((x, y) => x + '/' + y);
-    if(!fs.existsSync(od)) fs.mkdirSync(od, {recursive: true});
+    if (!fs.existsSync(od)) fs.mkdirSync(od, { recursive: true });
     if (f.endsWith('.js')) {
         fs.writeFileSync(o, babel.transformFileSync(f).code);
         logFile(f, 'babel');

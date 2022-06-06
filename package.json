@@ -1,20 +1,20 @@
 {
   "name": "siwedt",
-  "version": "0.0.11",
+  "version": "0.1.0-pre.0",
   "description": "A website delivery tool",
-  "homepage": "https://github.com/chrissxYT/siwedt",
-  "author": "Chris Häußler <chrissx@chrissx.de> (https://github.com/chrissxYT)",
+  "homepage": "https://github.com/pixelcmtd/siwedt",
+  "author": "Pixel Häußler <chrissx@chrissx.de> (https://github.com/pixelcmtd)",
   "maintainers": [
     {
-      "name": "Chris Häußler",
+      "name": "Pixel Häußler",
       "email": "chrissx@chrissx.de",
-      "github-username": "chrissxYT"
+      "github-username": "pixelcmtd"
     }
   ],
   "license": "MIT",
-  "repository": "chrissxYT/siwedt",
+  "repository": "pixelcmtd/siwedt",
   "bugs": {
-    "url": "https://github.com/chrissxYT/siwedt/issues"
+    "url": "https://github.com/pixelcmtd/siwedt/issues"
   },
   "main": "./bin/siwedt",
   "bin": {
@@ -24,13 +24,13 @@
     "@babel/core": "^7.14.8",
     "@babel/preset-env": "^7.14.8",
     "babel-preset-minify": "^0.5.1",
-    "csso": "^4.2.0",
+    "csso": "^5.0.3",
     "html-minifier": "^4.0.0",
-    "ignore-walk": "^3.0.4",
+    "ignore-walk": "^5.0.1",
     "minimist": "^1.2.5"
   },
   "devDependencies": {
-    "eslint": "^7.32.0"
+    "eslint": "^8.17.0"
   },
   "keywords": [
     "babel",
