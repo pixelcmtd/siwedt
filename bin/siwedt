@@ -42,17 +42,10 @@ const rc = args['C'] ?? args['inline-config']
 const browserlist = rc['browserlist'];
 const outdir = dirWithSlash(rc['outdir'] ?? 'dist');
 
-babel.loadOptions({
-    'presets': [
-        [require('@babel/preset-env'), {'targets': browserlist}],
-        [require('babel-preset-minify')],
-    ],
-});
+if (fs.existsSync(outdir)) fs.rmSync(outdir, { recursive: true, force: true });
 
-if(fs.existsSync(outdir)) fs.rmSync(outdir, {recursive: true, force: true});
-
-const logFile = (f, t) => args['V'] || args['verbose'] ?
-    console.log(t ? f + ': ' + t : f) : undefined;
+const logFile = args['V'] || args['verbose']
+    ? (f, t) => console.log(t ? f + ': ' + t : f) : (f, t) => { };
 
 // .siwedtignore shouldn't exist, blame @isaacs: npm/ignore-walk#12
 const files = walk.sync({ path: indir, ignoreFiles: ['.gitignore', '.siwedtignore'] });
@@ -61,16 +54,30 @@ for (const f of files) {
     const od = o.split('/').slice(0, -1).reduce((x, y) => x + '/' + y);
     if (!fs.existsSync(od)) fs.mkdirSync(od, { recursive: true });
     if (f.endsWith('.js')) {
-        fs.writeFileSync(o, babel.transformFileSync(f).code);
         logFile(f, 'babel');
+        fs.writeFileSync(o, babel.transformFileSync(f, {
+            'presets': [
+                [require('@babel/preset-env'), { 'targets': browserlist }],
+                [require('babel-preset-minify')],
+            ],
+        }).code);
+    } else if (f.endsWith('.ts')) {
+        logFile(f, 'babel');
+        fs.writeFileSync(o.replace(/\.ts$/, '.js'), babel.transformFileSync(f, {
+            'presets': [
+                [require('@babel/preset-typescript')],
+                [require('@babel/preset-env'), { 'targets': browserlist }],
+                [require('babel-preset-minify')],
+            ],
+        }).code);
     } else if (f.endsWith('.css')) {
-        fs.writeFileSync(o, css(fs.readFileSync(f, {encoding: 'utf-8'})).css);
         logFile(f, 'csso');
+        fs.writeFileSync(o, css(fs.readFileSync(f, { encoding: 'utf-8' })).css);
     } else if (f.endsWith('.html') || f.endsWith('.htm')) {
-        fs.writeFileSync(o, html(fs.readFileSync(f, {encoding: 'utf-8'}), {collapseBooleanAttributes: true, collapseInlineTagWhitespace: true, collapseWhitespace: true, decodeEntities: true, minifyCSS:true,minifyJS:true,minifyURLs:true, removeAttributeQuotes: true, removeComments: true, removeEmptyAttributes: true, removeOptionalTags: true, removeRedundantAttributes: true, removeScriptTypeAttributes: true, removeStyleLinkTypeAttributes: true, useShortDoctype: true}));
         logFile(f, 'html-minifier');
+        fs.writeFileSync(o, html(fs.readFileSync(f, { encoding: 'utf-8' }), { collapseBooleanAttributes: true, collapseInlineTagWhitespace: true, collapseWhitespace: true, decodeEntities: true, minifyCSS: true, minifyJS: true, minifyURLs: true, removeAttributeQuotes: true, removeComments: true, removeEmptyAttributes: true, removeOptionalTags: true, removeRedundantAttributes: true, removeScriptTypeAttributes: true, removeStyleLinkTypeAttributes: true, useShortDoctype: true }));
     } else {
-        fs.copyFileSync(f, o);
         logFile(f);
+        fs.copyFileSync(f, o);
     }
 }

@@ -1,7 +1,7 @@
 {
   "name": "siwedt",
-  "version": "0.1.0-pre.0",
-  "description": "A website delivery tool",
+  "version": "0.1.0",
+  "description": "simple website delivery tool",
   "homepage": "https://github.com/pixelcmtd/siwedt",
   "author": "Pixel Häußler <chrissx@chrissx.de> (https://github.com/pixelcmtd)",
   "maintainers": [
@@ -23,6 +23,7 @@
   "dependencies": {
     "@babel/core": "^7.14.8",
     "@babel/preset-env": "^7.14.8",
+    "@babel/preset-typescript": "^7.17.12",
     "babel-preset-minify": "^0.5.1",
     "csso": "^5.0.3",
     "html-minifier": "^4.0.0",
