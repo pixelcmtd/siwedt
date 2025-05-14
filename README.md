@@ -31,3 +31,7 @@ website or inline using the `-C`/`--inline-config` option.
     "outdir": "defaults to dist"
 }
 ```
+
+> [!WARNING]
+> If the output directory already exists, it will be deleted before processing.
+> Make sure the `outdir` (`dist` by default) doesn't contain any important data.
