@@ -1,1 +1,4 @@
-{"browserlist":""}
+{
+    "browserlist": ">0.1% and not dead",
+    "outdir": "dist2"
+}
