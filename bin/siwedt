@@ -9,7 +9,6 @@ const minimist = require('minimist');
 const { name, version } = require('../package.json');
 
 const dirWithSlash = d => !d || d.endsWith('/') ? d : d + '/';
-const readFileSafeSync = f => fs.existsSync(f) ? fs.readFileSync(f) : console.log(`file ${f} not found`);
 
 const args = minimist(process.argv.slice(2));
 
@@ -36,10 +35,23 @@ if (args['v'] || args['version']) {
 }
 
 const indir = dirWithSlash(args['_'][0]) ?? '';
-const rc = args['C'] ?? args['inline-config']
-    ?? readFileSafeSync(args['c'] ?? args['config'] ?? indir + '.siwedtrc')
-    ?? { browserlist: "" };
-const browserlist = rc['browserlist'];
+
+if ((args['C'] || args['inline-config']) && (args['c'] || args['config'])) {
+    console.error('-c/--config and -C/--inline-config are mutually exclusive');
+    process.exit(1);
+}
+
+let configfile = args['c'] ?? args['config'];
+if (configfile && !fs.existsSync(configfile)) {
+    console.error(`config file not found: ${configfile}`);
+    process.exit(1);
+}
+if (!configfile && fs.existsSync(indir + '.siwedtrc')) configfile = indir + '.siwedtrc';
+
+const rc = JSON.parse(args['C'] ?? args['inline-config']
+    ?? (configfile ? fs.readFileSync(configfile) : '{}'));
+
+const browserlist = rc['browserlist'] ?? '';
 const outdir = dirWithSlash(rc['outdir'] ?? 'dist');
 
 if (fs.existsSync(outdir)) fs.rmSync(outdir, { recursive: true, force: true });
