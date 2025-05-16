@@ -54,42 +54,66 @@ const rc = JSON.parse(args['C'] ?? args['inline-config']
 const browserlist = rc['browserlist'] ?? '';
 const outdir = dirWithSlash(rc['outdir'] ?? 'dist');
 
+const babelJs = {
+    'presets': [
+        [require('@babel/preset-env'), { targets: browserlist }],
+        [require('babel-preset-minify')],
+    ],
+};
+const babelTs = {
+    'presets': [
+        [require('@babel/preset-typescript')],
+        [require('@babel/preset-env'), { targets: browserlist }],
+        [require('babel-preset-minify')],
+    ],
+};
+const htmlConfig = {
+    collapseBooleanAttributes: true,
+    collapseInlineTagWhitespace: true,
+    collapseWhitespace: true,
+    decodeEntities: true,
+    minifyCSS: true,
+    minifyJS: true,
+    minifyURLs: true,
+    removeAttributeQuotes: true,
+    removeComments: true,
+    removeEmptyAttributes: true,
+    removeOptionalTags: true,
+    removeRedundantAttributes: true,
+    removeScriptTypeAttributes: true,
+    removeStyleLinkTypeAttributes: true,
+    useShortDoctype: true
+};
+function minifyFile(f) {
+    const i = indir + f;
+    const o = outdir + f;
+    if (f.endsWith('.js')) {
+        return ['babel', o, babel.transformFileSync(i, babelJs).code];
+    } else if (f.endsWith('.ts')) {
+        return ['babel', o.replace(/\.ts$/, '.js'), babel.transformFileSync(i, babelTs).code];
+    } else if (f.endsWith('.css')) {
+        return ['csso', o, css(fs.readFileSync(i, { encoding: 'utf-8' })).css];
+    } else if (f.endsWith('.html') || f.endsWith('.htm')) {
+        return ['html-minifier', o, html(fs.readFileSync(i, { encoding: 'utf-8' }), htmlConfig)];
+    } else {
+        return ['copy', o];
+    }
+}
+
 if (fs.existsSync(outdir)) fs.rmSync(outdir, { recursive: true, force: true });
 
-const logFile = args['V'] || args['verbose']
-    ? (f, t) => console.log(t ? f + ': ' + t : f) : (f, t) => { };
+const verbose = args['V'] || args['verbose'];
 
 // .siwedtignore shouldn't exist, blame @isaacs: npm/ignore-walk#12
 const files = walk.sync({ path: indir, ignoreFiles: ['.gitignore', '.siwedtignore'] });
 for (const f of files) {
-    const o = outdir + f;
+    const [t, o, c] = minifyFile(f);
     const od = o.split('/').slice(0, -1).reduce((x, y) => x + '/' + y);
     if (!fs.existsSync(od)) fs.mkdirSync(od, { recursive: true });
-    if (f.endsWith('.js')) {
-        logFile(f, 'babel');
-        fs.writeFileSync(o, babel.transformFileSync(f, {
-            'presets': [
-                [require('@babel/preset-env'), { 'targets': browserlist }],
-                [require('babel-preset-minify')],
-            ],
-        }).code);
-    } else if (f.endsWith('.ts')) {
-        logFile(f, 'babel');
-        fs.writeFileSync(o.replace(/\.ts$/, '.js'), babel.transformFileSync(f, {
-            'presets': [
-                [require('@babel/preset-typescript')],
-                [require('@babel/preset-env'), { 'targets': browserlist }],
-                [require('babel-preset-minify')],
-            ],
-        }).code);
-    } else if (f.endsWith('.css')) {
-        logFile(f, 'csso');
-        fs.writeFileSync(o, css(fs.readFileSync(f, { encoding: 'utf-8' })).css);
-    } else if (f.endsWith('.html') || f.endsWith('.htm')) {
-        logFile(f, 'html-minifier');
-        fs.writeFileSync(o, html(fs.readFileSync(f, { encoding: 'utf-8' }), { collapseBooleanAttributes: true, collapseInlineTagWhitespace: true, collapseWhitespace: true, decodeEntities: true, minifyCSS: true, minifyJS: true, minifyURLs: true, removeAttributeQuotes: true, removeComments: true, removeEmptyAttributes: true, removeOptionalTags: true, removeRedundantAttributes: true, removeScriptTypeAttributes: true, removeStyleLinkTypeAttributes: true, useShortDoctype: true }));
+    if (verbose) console.log(`${t.padEnd(13, ' ')} ${f}`);
+    if (c) {
+        fs.writeFileSync(o, c);
     } else {
-        logFile(f);
         fs.copyFileSync(f, o);
     }
 }
