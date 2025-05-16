@@ -3,11 +3,11 @@
   "version": "0.1.0",
   "description": "simple website delivery tool",
   "homepage": "https://github.com/pixelcmtd/siwedt",
-  "author": "Pixel Häußler <chrissx@chrissx.de> (https://github.com/pixelcmtd)",
+  "author": "Pixel Häußler <pixel+npm@chrissx.de> (https://github.com/pixelcmtd)",
   "maintainers": [
     {
       "name": "Pixel Häußler",
-      "email": "chrissx@chrissx.de",
+      "email": "pixel+npm@chrissx.de",
       "github-username": "pixelcmtd"
     }
   ],
@@ -31,7 +31,8 @@
     "minimist": "^1.2.5"
   },
   "devDependencies": {
-    "eslint": "^8.17.0"
+    "@eslint/js": "^9.0.0",
+    "eslint": "^9.0.0"
   },
   "keywords": [
     "babel",
