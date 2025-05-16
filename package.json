@@ -1,6 +1,6 @@
 {
   "name": "siwedt",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "simple website delivery tool",
   "homepage": "https://github.com/pixelcmtd/siwedt",
   "author": "Pixel Häußler <pixel+npm@chrissx.de> (https://github.com/pixelcmtd)",
@@ -12,23 +12,29 @@
     }
   ],
   "license": "MIT",
-  "repository": "pixelcmtd/siwedt",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pixelcmtd/siwedt.git"
+  },
   "bugs": {
     "url": "https://github.com/pixelcmtd/siwedt/issues"
   },
+  "files": [
+    "bin/siwedt"
+  ],
   "main": "./bin/siwedt",
   "bin": {
-    "siwedt": "./bin/siwedt"
+    "siwedt": "bin/siwedt"
   },
   "dependencies": {
-    "@babel/core": "^7.14.8",
-    "@babel/preset-env": "^7.14.8",
-    "@babel/preset-typescript": "^7.17.12",
-    "babel-preset-minify": "^0.5.1",
-    "csso": "^5.0.3",
+    "@babel/core": "^7.27.0",
+    "@babel/preset-env": "^7.27.0",
+    "@babel/preset-typescript": "^7.27.0",
+    "babel-preset-minify": "^0.5.2",
+    "csso": "^5.0.5",
     "html-minifier": "^4.0.0",
-    "ignore-walk": "^5.0.1",
-    "minimist": "^1.2.5"
+    "ignore-walk": "^7.0.0",
+    "minimist": "^1.2.8"
   },
   "devDependencies": {
     "@eslint/js": "^9.0.0",
